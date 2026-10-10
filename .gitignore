@@ -2,6 +2,7 @@
 .env
 
 # Données locales générées
+output/
 *.db
 *.sqlite
 *.sqlite3

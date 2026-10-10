@@ -62,7 +62,7 @@ buzz(P4)     = 0.4·pct(nb de votes) + 0.4·pct(note pondérée) + 0.2·pct(popu
 ```
 
 - **Note pondérée** (formule bayésienne type IMDb) : `WR = v/(v+m)·R + m/(v+m)·C`, avec `v` = votes du titre, `R` = sa note, `m` = seuil de votes, `C` = note moyenne du lot. Évite qu'un titre à 12 votes et 9.2 passe devant tout.
-- **Seuil minimal de votes** (`m`, valeurs de départ à calibrer sur les vraies données) : films P1 50 · P2 200 · P3 500 · P4 3 000. Séries : environ moitié moins.
+- **Seuil minimal de votes** (`m`), calibré sur TMDB le 2026-10-10 : films P1 10 · P2 50 · P3 100 · P4 3 000. Séries P1 5 · P2 20 · P3 50 · P4 1 500. Les valeurs de départ (50 / 200 / 500) ne laissaient que 12 à 17 titres sur les périodes récentes ; ces seuils donnent ≥ 50 candidats par liste. Réglables dans `config.py`.
 - « Culte » n'est pas directement mesurable : on le **mesure par proxy** (beaucoup de votes + bonne note, des années après). Idée à tester : bonus si TMDB porte le mot-clé « cult film ».
 
 ## 5. Mode perso — matching pur
@@ -178,6 +178,8 @@ Fichiers prévus : `ingest.py`, `score.py`, `build_page.py`, `profile.json`, `.e
 | **4. Retour** | Boutons « déjà vu » / « pas intéressé » qui ajustent le profil | Un clic change le classement |
 | **5. Rafraîchissement** | Lancement hebdo automatique (launchd/cron), cache | La page se met à jour seule |
 | **6. Facultatif** | Badge plateforme · mode « duo » (ses goûts + les tiens) · autres médias | À la demande |
+
+**Avancement (2026-10-10) :** phases 0 et 1 faites. `python3 refresh.py` produit `output/index.html` (8 listes de 20 titres, synopsis repliés). Prochaine étape : phase 2 (profil de goûts).
 
 ## 12. Points à confirmer
 
