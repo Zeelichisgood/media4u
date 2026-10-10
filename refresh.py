@@ -8,6 +8,7 @@ from datetime import date
 
 import build_page
 import ingest
+import personal
 import score
 from db import connect
 from tmdb import TMDB, TMDBError
@@ -26,8 +27,10 @@ def main(argv: list[str]) -> int:
             ingest.fetch_pools(client, conn, today)
             print("3/4 Score")
             score.rank_all(conn)
-            print("4/4 Fiches détaillées")
+            print("4/4 Fiches enrichies (mots-clés, équipe, recommandations)")
             ingest.fetch_details(client, conn)
+            for media, tmdb_id in personal.profile_refs(personal.load_profiles()):
+                ingest.ensure_title(client, conn, media, tmdb_id)  # préférés hors vivier
             print(f"  {client.calls} appels TMDB")
         except TMDBError as error:
             print(f"Erreur : {error}", file=sys.stderr)

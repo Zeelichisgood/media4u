@@ -39,6 +39,18 @@ CREATE TABLE IF NOT EXISTS period_items (
     rank    INTEGER,                           -- NULL si hors du top affiché
     PRIMARY KEY (period, media, tmdb_id)
 );
+
+-- Caractéristiques servant au matching (mots-clés, équipe, recommandations TMDB)
+CREATE TABLE IF NOT EXISTS features (
+    media      TEXT NOT NULL,
+    tmdb_id    INTEGER NOT NULL,
+    keywords   TEXT NOT NULL DEFAULT '[]',     -- noms TMDB (anglais), minuscules
+    cast_ids   TEXT NOT NULL DEFAULT '[]',     -- 5 premiers rôles
+    crew_ids   TEXT NOT NULL DEFAULT '[]',     -- réalisateur·rice(s) ou créateur·rice(s)
+    reco_ids   TEXT NOT NULL DEFAULT '[]',     -- recommandations TMDB (même média)
+    fetched_at TEXT NOT NULL,
+    PRIMARY KEY (media, tmdb_id)
+);
 """
 
 

@@ -1,0 +1,187 @@
+{
+  "name": "Celia",
+  "families": {
+    "enquetes": 1,
+    "crime": 1,
+    "suspense": 1,
+    "horreur": 1,
+    "sf": -1,
+    "fantasy": 1,
+    "action": -1,
+    "humour": 1,
+    "romance": 1,
+    "grandir": 1,
+    "drame": 1,
+    "histoire": -1,
+    "animation": -1,
+    "ambiance": -1,
+    "format": 1
+  },
+  "tastes": {
+    "enquete_policiere": 1,
+    "tueur_serie": 1,
+    "disparition": 1,
+    "judiciaire": -1,
+    "mafia": 1,
+    "braquage": 1,
+    "espionnage": 1,
+    "justicier": -1,
+    "prison": -1,
+    "thriller_psy": 1,
+    "survie": 1,
+    "tension": 1,
+    "slasher_gore": -1,
+    "horreur_surnat": 1,
+    "monstres": 1,
+    "horreur_psy": 1,
+    "horreur_fete": -1,
+    "espace": -1,
+    "dystopie": 1,
+    "ia_robots": -1,
+    "temps_multivers": -1,
+    "magie": 1,
+    "monde_imaginaire": 1,
+    "surnaturel": 1,
+    "superheros": -1,
+    "combats": -1,
+    "aventure": 1,
+    "humour_noir": 1,
+    "rigolade": 1,
+    "potes": 1,
+    "amitie": 1,
+    "grande_romance": 1,
+    "lgbt": -1,
+    "romcom": -1,
+    "coming_of_age": 1,
+    "lycee": 1,
+    "famille": 1,
+    "drame_intime": 1,
+    "drame_social": 1,
+    "faits_reels": 1,
+    "epoque": -1,
+    "guerre": 1,
+    "retro": -1,
+    "anime": -1,
+    "anim_famille": 1,
+    "anim_adulte": 1,
+    "sombre": -1,
+    "tendu": 1,
+    "doux": 1,
+    "emouvant": 1,
+    "reflexif": -1,
+    "adapt_livre": 1,
+    "adapt_bd": 1,
+    "adapt_jeu": 1,
+    "miniserie": 1,
+    "anthologie": 1,
+    "univers": 1
+  },
+  "favorites": [
+    {
+      "media": "tv",
+      "id": 246386,
+      "level": 1.0,
+      "title": "All Her Fault",
+      "source": "duel"
+    },
+    {
+      "media": "tv",
+      "id": 288673,
+      "level": 1.0,
+      "title": "Carrie",
+      "source": "duel"
+    },
+    {
+      "media": "movie",
+      "id": 77338,
+      "level": 1.0,
+      "title": "Intouchables",
+      "source": "duel"
+    },
+    {
+      "media": "movie",
+      "id": 244786,
+      "level": 1.0,
+      "title": "Whiplash",
+      "source": "duel"
+    },
+    {
+      "media": "movie",
+      "id": 1368166,
+      "level": 1.0,
+      "title": "La Femme de ménage",
+      "source": "duel"
+    },
+    {
+      "media": "movie",
+      "id": 121,
+      "level": 2.0,
+      "title": "Le Seigneur des anneaux : Les Deux Tours",
+      "source": "fav"
+    },
+    {
+      "media": "tv",
+      "id": 1399,
+      "level": 2.0,
+      "title": "Game of Thrones",
+      "source": "fav"
+    },
+    {
+      "media": "tv",
+      "id": 284656,
+      "level": 2.0,
+      "title": "Empathie",
+      "source": "fav"
+    },
+    {
+      "media": "tv",
+      "id": 236235,
+      "level": 2.0,
+      "title": "The Gentlemen",
+      "source": "fav"
+    },
+    {
+      "media": "tv",
+      "id": 225171,
+      "level": 2.0,
+      "title": "Pluribus",
+      "source": "fav"
+    },
+    {
+      "media": "tv",
+      "id": 66573,
+      "level": 2.0,
+      "title": "The Good Place",
+      "source": "fav"
+    },
+    {
+      "media": "movie",
+      "id": 152532,
+      "level": 2.0,
+      "title": "Dallas Buyers Club",
+      "source": "fav"
+    },
+    {
+      "media": "movie",
+      "id": 314095,
+      "level": 2.0,
+      "title": "The Lost City of Z",
+      "source": "fav"
+    },
+    {
+      "media": "tv",
+      "id": 95396,
+      "level": 2.0,
+      "title": "Severance",
+      "source": "fav"
+    },
+    {
+      "media": "tv",
+      "id": 34307,
+      "level": 2.0,
+      "title": "Shameless",
+      "source": "fav"
+    }
+  ],
+  "created": "2026-10-10"
+}

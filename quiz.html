@@ -1,0 +1,297 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Media 4 u · Mes goûts</title>
+<style>
+:root{--bg:#f6f5f2;--card:#fff;--text:#1d1d1f;--muted:#6b6b72;--line:#e3e1db;--accent:#b4442f;--accent-soft:#f6e4df;--good:#2f7d4f;--good-soft:#e1f1e8;--bad:#8a3b3b;--bad-soft:#f4e1e1}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#17171a;--card:#212125;--text:#f1f0ed;--muted:#a3a3ab;--line:#33333a;--accent:#ef8a73;--accent-soft:#3a2723;--good:#7fd1a0;--good-soft:#1f3328;--bad:#e59a9a;--bad-soft:#3a2323}}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--text);font:16px/1.5 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif}
+.wrap{max-width:860px;margin:0 auto;padding:0 16px 48px}
+header{padding:28px 0 8px}
+h1{margin:0;font-size:1.6rem;letter-spacing:-.02em}
+h2{margin:20px 0 4px;font-size:1.25rem}
+.sub{margin:4px 0 0;color:var(--muted)}
+.bar{height:6px;background:var(--line);border-radius:3px;margin:16px 0 4px;overflow:hidden}
+.bar i{display:block;height:100%;background:var(--accent);transition:width .25s}
+button{font:inherit;cursor:pointer}
+.primary{appearance:none;border:0;background:var(--accent);color:#fff;border-radius:999px;padding:10px 22px;font-weight:600}
+.ghost{appearance:none;border:1px solid var(--line);background:var(--card);color:var(--text);border-radius:999px;padding:9px 18px}
+.actions{display:flex;gap:10px;flex-wrap:wrap;margin-top:22px}
+input[type=text]{width:100%;max-width:420px;font:inherit;padding:10px 14px;border:1px solid var(--line);border-radius:12px;background:var(--card);color:var(--text)}
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(230px,1fr));gap:12px;margin-top:16px}
+.tile{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:14px}
+.tile .e{font-size:1.5rem}
+.tile strong{display:block}
+.tile small{display:block;color:var(--muted);margin-bottom:10px}
+.pn{display:flex;gap:6px}
+.pn button,.chip button{appearance:none;border:1px solid var(--line);background:transparent;color:var(--text);border-radius:999px;padding:5px 12px;font-size:.88rem}
+.pn button[aria-pressed="true"].yes,.chip button[aria-pressed="true"].yes{background:var(--good-soft);border-color:var(--good);color:var(--good)}
+.pn button[aria-pressed="true"].no,.chip button[aria-pressed="true"].no{background:var(--bad-soft);border-color:var(--bad);color:var(--bad)}
+.group{margin-top:22px}
+.group h3{margin:0 0 8px;font-size:1.05rem}
+.chips{display:grid;grid-template-columns:repeat(auto-fill,minmax(250px,1fr));gap:8px}
+.chip{display:flex;justify-content:space-between;align-items:center;gap:8px;background:var(--card);border:1px solid var(--line);border-radius:12px;padding:8px 10px}
+.chip span{font-size:.92rem}
+.chip small{display:block;color:var(--muted);font-size:.76rem}
+.chip .btns{display:flex;gap:4px;flex:none}
+.duel{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:16px}
+.duel-card{appearance:none;text-align:left;background:var(--card);color:var(--text);border:2px solid var(--line);border-radius:16px;padding:12px;display:flex;flex-direction:column;gap:6px}
+.duel-card:hover{border-color:var(--accent)}
+.duel-card img,.noposter{width:100%;max-width:230px;align-self:center;aspect-ratio:2/3;object-fit:cover;border-radius:10px;background:var(--line)}
+.noposter{display:grid;place-items:center;color:var(--muted)}
+.duel-card .m{color:var(--muted);font-size:.85rem}
+.duel-card em{font-size:.88rem}
+.results{margin-top:12px;display:grid;gap:8px}
+.res{display:flex;gap:10px;align-items:center;background:var(--card);border:1px solid var(--line);border-radius:12px;padding:8px}
+.res img,.res .np{width:44px;height:64px;object-fit:cover;border-radius:6px;background:var(--line);flex:none}
+.res .t{flex:1;min-width:0}
+.res .t small{color:var(--muted)}
+.lvl{display:flex;gap:4px;flex-wrap:wrap}
+.lvl button{appearance:none;border:1px solid var(--line);background:transparent;color:var(--text);border-radius:999px;padding:4px 10px;font-size:.82rem}
+.lvl button[aria-pressed="true"]{background:var(--accent-soft);border-color:var(--accent);color:var(--accent)}
+.recap p{margin:6px 0}
+.tag{display:inline-block;background:var(--accent-soft);color:var(--accent);border-radius:999px;padding:2px 10px;margin:2px 4px 2px 0;font-size:.85rem}
+.tag.no{background:var(--bad-soft);color:var(--bad)}
+.err{color:var(--bad);margin-top:12px}
+.muted{color:var(--muted)}
+@media (max-width:600px){.duel{grid-template-columns:1fr}}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <h1>Mes goûts</h1>
+    <p class="sub" id="sub"></p>
+    <div class="bar"><i id="bar" style="width:0"></i></div>
+  </header>
+  <main id="view"></main>
+</div>
+<script>
+const TAX = /*__TAXONOMY__*/null;
+const STEPS = ["intro", "families", "tastes", "duels", "favorites", "recap"];
+const LABELS = { intro: "Début", families: "Grandes envies", tastes: "Goûts précis", duels: "Duels", favorites: "Tes préférés", recap: "Récap" };
+const DUEL_ROUNDS = 5;
+const state = { step: "intro", name: "Moi", families: {}, tastes: {}, favorites: [], shown: [], round: 0, duel: null, results: [], error: "" };
+const view = document.getElementById("view");
+
+const esc = s => String(s == null ? "" : s).replace(/[&<>"']/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
+const poster = (src, cls) => src ? `<img src="${esc(src)}" alt="">` : `<div class="${cls || "noposter"}">?</div>`;
+const famLabel = id => (TAX.families.find(f => f.id === id) || {}).label || id;
+const tasteLabel = id => (TAX.tastes.find(t => t.id === id) || {}).label || id;
+const active = map => Object.keys(map).filter(k => map[k]);
+const payload = () => ({ name: state.name, families: state.families, tastes: state.tastes, favorites: state.favorites, shown: state.shown });
+
+function toggle(map, key, value) { map[key] = map[key] === value ? 0 : value; }
+
+function setFavorite(item, level, source) {
+  state.favorites = state.favorites.filter(f => !(f.media === item.media && f.id === item.id));
+  if (level !== null) state.favorites.push({ media: item.media, id: item.id, title: item.title, year: item.year, poster: item.poster, level, source: source || "fav" });
+}
+
+function go(step) { state.step = step; state.error = ""; render(); window.scrollTo(0, 0); }
+function next() {
+  const i = STEPS.indexOf(state.step);
+  let target = STEPS[i + 1];
+  if (target === "tastes" && !active(state.families).length) target = "duels";
+  go(target);
+  if (target === "duels") startDuels();
+}
+function back() {
+  const i = STEPS.indexOf(state.step);
+  let target = STEPS[Math.max(0, i - 1)];
+  if (target === "duels") target = active(state.families).length ? "tastes" : "families";
+  go(target);
+}
+
+function chrome(body, opts) {
+  opts = opts || {};
+  const i = STEPS.indexOf(state.step);
+  document.getElementById("sub").textContent = LABELS[state.step] + " · étape " + (i + 1) + "/" + STEPS.length;
+  document.getElementById("bar").style.width = Math.round((i / (STEPS.length - 1)) * 100) + "%";
+  const err = state.error ? `<p class="err">${esc(state.error)}</p>` : "";
+  const nav = opts.nav === false ? "" : `<div class="actions">
+      ${i > 0 ? '<button class="ghost" data-act="back">Retour</button>' : ""}
+      <button class="primary" data-act="next">${opts.nextLabel || "Continuer"}</button></div>`;
+  view.innerHTML = body + err + nav;
+}
+
+function renderIntro() {
+  chrome(`<h2>On construit ton profil</h2>
+    <p class="sub">Quelques choix rapides : des envies, des goûts précis, des duels de titres, puis tes préférés si tu veux. Compte 3 minutes. Rien n'est spoilé.</p>
+    <p style="margin-top:20px"><label>Pour qui ?<br><input type="text" id="name" value="${esc(state.name)}" maxlength="40"></label></p>`,
+    { nextLabel: "Commencer" });
+}
+
+function renderFamilies() {
+  const tiles = TAX.families.map(f => {
+    const v = state.families[f.id] || 0;
+    return `<div class="tile"><div class="e">${f.emoji}</div><strong>${esc(f.label)}</strong><small>${esc(f.hint)}</small>
+      <div class="pn"><button class="yes" data-act="fam" data-id="${f.id}" data-val="1" aria-pressed="${v === 1}">J'aime</button>
+      <button class="no" data-act="fam" data-id="${f.id}" data-val="-1" aria-pressed="${v === -1}">J'évite</button></div></div>`;
+  }).join("");
+  chrome(`<h2>Qu'est-ce qui t'attire ?</h2>
+    <p class="sub">Réponds seulement quand tu as un avis. Ce qui n'est pas coché reste neutre.</p><div class="grid">${tiles}</div>`);
+}
+
+function renderTastes() {
+  const groups = TAX.families.filter(f => state.families[f.id]).map(f => {
+    const liked = state.families[f.id] === 1;
+    const chips = TAX.tastes.filter(t => t.family === f.id).map(t => {
+      const v = state.tastes[t.id] || 0;
+      return `<div class="chip"><span>${esc(t.label)}<small>${esc(t.hint)}</small></span><div class="btns">
+        <button class="yes" data-act="taste" data-id="${t.id}" data-val="1" aria-pressed="${v === 1}">👍</button>
+        <button class="no" data-act="taste" data-id="${t.id}" data-val="-1" aria-pressed="${v === -1}">👎</button></div></div>`;
+    }).join("");
+    const title = liked ? `${f.emoji} ${esc(f.label)} : lesquels exactement ?` : `${f.emoji} ${esc(f.label)} : des exceptions ?`;
+    return `<div class="group"><h3>${title}</h3><div class="chips">${chips}</div></div>`;
+  }).join("");
+  chrome(`<h2>Plus précis</h2>
+    <p class="sub">C'est ici qu'on distingue, par exemple, « une enquête » de « un drame ». Une réponse précise l'emporte sur la réponse de sa famille.</p>${groups}`);
+}
+
+async function api(path, body) {
+  const r = await fetch(path, body ? { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(body) } : undefined);
+  const data = await r.json();
+  if (!r.ok) throw new Error(data.error || "Erreur serveur");
+  return data;
+}
+
+async function startDuels() { state.round = 0; await nextDuel(); }
+
+async function nextDuel() {
+  if (state.round >= DUEL_ROUNDS) return next();
+  state.duel = null; state.error = "";
+  chrome('<p class="muted">Je cherche deux titres à te proposer…</p>', { nav: false });
+  try {
+    const d = await api("/api/duel", payload());
+    if (d.done) return next();
+    state.duel = d; state.round += 1;
+    state.shown.push([d.a.media, d.a.id], [d.b.media, d.b.id]);
+    renderDuel();
+  } catch (e) { state.error = e.message; chrome("<p>Impossible de charger un duel.</p>", { nextLabel: "Passer" }); }
+}
+
+function duelCard(c, which) {
+  return `<button class="duel-card" data-act="pick" data-which="${which}">${poster(c.poster)}
+    <strong>${esc(c.title)} <span class="muted">(${esc(c.year)})</span></strong>
+    <span class="m">${esc(c.format)} · ${esc(c.genres.join(" · "))}</span>${c.tagline ? `<em>« ${esc(c.tagline)} »</em>` : ""}</button>`;
+}
+
+function renderDuel() {
+  const d = state.duel;
+  if (!d) return chrome('<p class="muted">Je cherche deux titres à te proposer…</p>', { nav: false });
+  chrome(`<h2>Duel ${state.round}/${DUEL_ROUNDS} : lequel te donne le plus envie ?</h2>
+    <div class="duel">${duelCard(d.a, "a")}${duelCard(d.b, "b")}</div>
+    <div class="actions"><button class="ghost" data-act="pick" data-which="both">Les deux</button>
+    <button class="ghost" data-act="pick" data-which="none">Aucun des deux</button>
+    <button class="ghost" data-act="skip-duels">Passer les duels</button></div>`, { nav: false });
+}
+
+function answerDuel(which) {
+  const d = state.duel;
+  if (which === "a") setFavorite(d.a, 1, "duel");
+  else if (which === "b") setFavorite(d.b, 1, "duel");
+  else if (which === "both") { setFavorite(d.a, 1, "duel"); setFavorite(d.b, 1, "duel"); }
+  else { setFavorite(d.a, -0.6, "duel"); setFavorite(d.b, -0.6, "duel"); }
+  nextDuel();
+}
+
+let searchTimer = null;
+function renderFavorites() {
+  const chosen = state.favorites.filter(f => f.source === "fav");
+  const list = chosen.map(f => `<div class="res">${f.poster ? `<img src="${esc(f.poster)}" alt="">` : '<div class="np"></div>'}
+    <div class="t"><strong>${esc(f.title)}</strong> <small>${esc(f.year)}</small></div>${levels(f)}
+    <button class="ghost" data-act="rm" data-media="${f.media}" data-id="${f.id}">Retirer</button></div>`).join("");
+  chrome(`<h2>Tes préférés (facultatif)</h2>
+    <p class="sub">5 à 10 films ou séries que tu as aimés (ou pas). Plus c'est varié, mieux c'est. Tu peux passer.</p>
+    <input type="text" id="q" placeholder="Chercher un film ou une série…" autocomplete="off">
+    <div class="results" id="results"></div>
+    ${chosen.length ? `<h2>Ta liste (${chosen.length})</h2><div class="results">${list}</div>` : ""}`,
+    { nextLabel: chosen.length ? "Continuer" : "Passer" });
+  const q = document.getElementById("q");
+  q.value = state.query || "";
+  q.addEventListener("input", () => {
+    state.query = q.value;
+    clearTimeout(searchTimer);
+    searchTimer = setTimeout(runSearch, 300);
+  });
+  showResults();
+}
+
+function levels(f) {
+  const b = (lvl, label) => `<button data-act="lvl" data-media="${f.media}" data-id="${f.id}" data-lvl="${lvl}" aria-pressed="${f.level === lvl}">${label}</button>`;
+  return `<div class="lvl">${b(2, "❤️ Adoré")}${b(1, "👍 Aimé")}${b(-1, "👎 Pas aimé")}</div>`;
+}
+
+async function runSearch() {
+  const q = (state.query || "").trim();
+  if (q.length < 2) { state.results = []; return showResults(); }
+  try { state.results = await api("/api/search?q=" + encodeURIComponent(q)); } catch (e) { state.results = []; state.error = e.message; }
+  showResults();
+}
+
+function showResults() {
+  const box = document.getElementById("results");
+  if (!box) return;
+  box.innerHTML = state.results.map((r, i) => `<div class="res">${r.poster ? `<img src="${esc(r.poster)}" alt="">` : '<div class="np"></div>'}
+    <div class="t"><strong>${esc(r.title)}</strong> <small>${r.media === "movie" ? "Film" : "Série"} · ${esc(r.year)}</small></div>
+    <div class="lvl"><button data-act="add" data-i="${i}" data-lvl="2">❤️ Adoré</button><button data-act="add" data-i="${i}" data-lvl="1">👍 Aimé</button><button data-act="add" data-i="${i}" data-lvl="-1">👎 Pas aimé</button></div></div>`).join("");
+}
+
+function renderRecap() {
+  const fl =active(state.families).filter(k => state.families[k] === 1);
+  const fa = active(state.families).filter(k => state.families[k] === -1);
+  const tl = active(state.tastes).filter(k => state.tastes[k] === 1);
+  const ta = active(state.tastes).filter(k => state.tastes[k] === -1);
+  const favs = state.favorites.filter(f => f.source === "fav");
+  const duels = state.favorites.filter(f => f.source === "duel");
+  const line = (title, items, cls, fn) => items.length ? `<p><strong>${title}</strong><br>${items.map(i => `<span class="tag ${cls}">${esc(fn(i))}</span>`).join("")}</p>` : "";
+  chrome(`<h2>Ton profil, ${esc(state.name)}</h2><div class="recap">
+    ${line("Tu aimes", fl, "", famLabel)}${line("Tu évites", fa, "no", famLabel)}
+    ${line("Goûts précis : oui", tl, "", tasteLabel)}${line("Goûts précis : non", ta, "no", tasteLabel)}
+    ${favs.length ? `<p><strong>Tes préférés</strong><br>${favs.map(f => `<span class="tag ${f.level < 0 ? "no" : ""}">${esc(f.title)}</span>`).join("")}</p>` : ""}
+    ${duels.length ? `<p class="muted">${duels.length} titre(s) retenu(s) ou écarté(s) dans les duels.</p>` : ""}
+    ${!fl.length && !fa.length && !tl.length && !ta.length && !favs.length && !duels.length ? '<p class="muted">Tu n\'as rien indiqué : le classement restera le classement général.</p>' : ""}
+  </div>`, { nextLabel: "Enregistrer et voir ma sélection" });
+}
+
+async function save() {
+  state.error = "";
+  const button = view.querySelector('[data-act="next"]');
+  if (button) { button.disabled = true; button.textContent = "Enregistrement…"; }
+  try {
+    const d = await api("/api/profile", payload());
+    window.location.href = d.url;
+  } catch (e) { state.error = e.message; renderRecap(); }
+}
+
+function render() {
+  ({ intro: renderIntro, families: renderFamilies, tastes: renderTastes, duels: renderDuel, favorites: renderFavorites, recap: renderRecap })[state.step]();
+}
+
+view.addEventListener("click", e => {
+  const b = e.target.closest("[data-act]");
+  if (!b) return;
+  const act = b.dataset.act;
+  if (act === "next") {
+    if (state.step === "intro") state.name = (document.getElementById("name").value || "Moi").trim() || "Moi";
+    if (state.step === "recap") return save();
+    return next();
+  }
+  if (act === "back") return back();
+  if (act === "fam") { toggle(state.families, b.dataset.id, +b.dataset.val); return renderFamilies(); }
+  if (act === "taste") { toggle(state.tastes, b.dataset.id, +b.dataset.val); return renderTastes(); }
+  if (act === "pick") return answerDuel(b.dataset.which);
+  if (act === "skip-duels") { state.round = DUEL_ROUNDS; return next(); }
+  if (act === "add") { setFavorite(state.results[+b.dataset.i], +b.dataset.lvl, "fav"); state.query = ""; state.results = []; return renderFavorites(); }
+  if (act === "lvl") { const f = state.favorites.find(x => x.media === b.dataset.media && x.id === +b.dataset.id); if (f) f.level = +b.dataset.lvl; return renderFavorites(); }
+  if (act === "rm") { setFavorite({ media: b.dataset.media, id: +b.dataset.id }, null); return renderFavorites(); }
+});
+
+render();
+</script>
+</body>
+</html>

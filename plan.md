@@ -45,7 +45,7 @@ Une seule source pour la v1 : TMDB (gratuit en non-commercial, clé API à crée
 | Idem pour les séries | `GET /3/discover/tv` (`first_air_date.gte/lte`, `sort_by`, `vote_count.gte`) | Confirmé |
 | « Les gens qui ont aimé X ont aussi aimé… » | `GET /3/movie/{id}/recommendations`, `GET /3/tv/{id}/recommendations` | Confirmé |
 | Mots-clés d'un film | `GET /3/movie/{id}/keywords` | Confirmé |
-| Mots-clés d'une série | `GET /3/tv/{id}/keywords` | À vérifier |
+| Mots-clés d'une série | `GET /3/tv/{id}/keywords` (ou `append_to_response=keywords` sur la fiche) | Confirmé (2026-10-10) |
 | Dispo par plateforme (facultatif) | `GET /3/movie/{id}/watch/providers` (+ équivalent TV) | Film confirmé, attribution **JustWatch** obligatoire |
 
 Volume : ~160 titres par rafraîchissement. Très en dessous des limites TMDB.
@@ -67,41 +67,47 @@ buzz(P4)     = 0.4·pct(nb de votes) + 0.4·pct(note pondérée) + 0.2·pct(popu
 
 ## 5. Mode perso — matching pur
 
-C'est du **filtrage par contenu** classique, avec un signal collaboratif « emprunté » à TMDB.
+Filtrage par contenu classique, avec un signal collaboratif « emprunté » à TMDB. **Construit** : `taxonomy.py`, `personal.py`, `quiz.py`, `quiz.html`.
 
-### Entrée
+### Entrée : un quiz en arbre (≈ 3 minutes)
 
-Une liste de 10 à 20 titres qu'elle a aimés, avec 3 niveaux : **adoré** (+2) · **aimé** (+1) · **pas aimé** (−1). Les « pas aimé » comptent autant que les autres : ils évitent les contresens.
+`python3 quiz.py` ouvre un petit quiz local. Chaque étape affine la précédente :
 
-### Profil de goûts
+1. **Familles** (15) : « j'aime » / « j'évite » / neutre. Exemple : j'évite *Drames humains*, j'aime *Enquêtes & mystères*.
+2. **Goûts précis** (57), seulement dans les familles où tu as un avis : « enquête policière », « tueur en série », « humour noir »… Une réponse précise l'emporte sur celle de sa famille : on peut éviter les drames et adorer l'enquête qui en est un.
+3. **Duels** (5) : deux titres plausibles pour le profil mais aussi différents que possible ; « A », « B », « les deux » ou « aucun ». Seuls des titres connus (bon buzz dans leur liste) sont proposés.
+4. **Préférés** (facultatif) : recherche TMDB, avec adoré / aimé / pas aimé.
 
-Pour chaque titre de la liste, on récupère ses caractéristiques, puis on additionne en pondérant par la note donnée :
+Le profil est enregistré dans `profiles/<nom>.json`, versionné avec le dépôt (public : les goûts y sont lisibles, choix assumé). Un profil par personne ; la page propose un sélecteur Général / profil.
 
-| Groupe | Contenu | Poids de départ |
-|---|---|---|
-| Mots-clés | Mots-clés TMDB, pondérés TF-IDF (un mot rare pèse plus) | 0.30 |
-| Genres | Genres TMDB | 0.25 |
-| Personnes | Réalisateur·rice / créateur·rice + 5 premiers rôles | 0.20 |
-| Langue / pays | Langue originale, pays | 0.10 |
-| Format | Durée, nombre de saisons | 0.10 |
-| Époque | Décennie | 0.05 |
+### Vocabulaire des goûts
+
+Un goût précis = un groupe de mots-clés TMDB réels (`taxonomy.py`), éventuellement limité à certains genres. Construit à partir des 4 329 mots-clés distincts observés dans les 903 titres des listes ; couverture : 90 % des titres touchent au moins un goût. Les libellés décrivent un cadre, un ton ou un sujet, jamais un événement d'intrigue ; les sujets sensibles (deuil, trauma) comptent au score mais ne s'affichent pas sur les cartes.
 
 ### Score d'un candidat
 
-```
-score = 0.45·similarité(profil, candidat)      # cosinus sur les groupes ci-dessus
-      + 0.30·co-reco(candidat)                 # nb de titres aimés dont TMDB le recommande
-      + 0.15·qualité(candidat)                 # note pondérée du §4
-      − 0.30·proximité(candidat, « pas aimé »)
-```
+Cinq composantes, renormalisées si le profil n'en fournit pas une (buzz et qualité restent toujours) :
 
-Puis **diversité** : pas plus de 3 titres du même genre principal dans un top 10.
+| Composante | Poids de départ | Ce que c'est |
+|---|---|---|
+| Goûts précis | 0.36 | correspondance avec les goûts du quiz, à rendements décroissants ; les « j'évite » soustraient |
+| Genres | 0.09 | réponses de famille, comptent moitié moins qu'une réponse précise |
+| Titres aimés | 0.25 | cosinus (genres, mots-clés TF-IDF, équipe, casting) avec les titres aimés ; bonus si TMDB les recommande ensemble ; malus de proximité avec un « pas aimé » |
+| Buzz | 0.20 | le score « ça fait parler » du §4 |
+| Qualité | 0.10 | note pondérée, pour ne pas remonter ce que le public juge mauvais |
 
-Poids de départ : on les règle ensuite avec le test du §8, pas à l'intuition.
+Les titres saisis comme préférés (déjà vus) ne sont jamais recommandés.
+
+Poids de départ : à régler avec le test du §8, pas à l'intuition.
 
 ### Explication (sans texte généré)
 
-Gabarit fixe : « **Proche de :** A, B » (les 1 à 2 titres aimés qui contribuent le plus) + « **Genres :** … ». Rien d'autre.
+Sur chaque carte : « **Proche de :** A, B » (les 1 à 2 titres aimés les plus proches) et 1 à 2 puces de goûts en commun. Si rien ne colle, la carte le dit : « Peu de rapport avec tes goûts ».
+
+### Pas encore fait
+
+- Règle de **diversité** (pas plus de 3 titres du même genre dans un top 10).
+- **Évaluation** du §8 (leave-one-out, courbe du nombre de titres, réglage des poids).
 
 ### Combien de titres ?
 
@@ -119,10 +125,10 @@ Sans LLM, on ne génère pas de texte : on **n'affiche que des champs sûrs**.
 
 | Affiché par défaut | Caché derrière un clic | Jamais |
 |---|---|---|
-| Titre, année, genres, durée / nb de saisons, affiche, note TMDB, tagline, badge plateforme | Synopsis TMDB (« voir le synopsis ») | Critiques, titres ou résumés d'épisodes, images de fond / stills, mots-clés, changements de casting, bande-annonce |
+| Titre, année, genres, durée / nb de saisons, affiche, note TMDB, tagline, badge plateforme | Synopsis TMDB (« voir le synopsis ») | Critiques, titres ou résumés d'épisodes, images de fond / stills, mots-clés, changements de casting, bande-annonce. Les puces de goûts viennent du vocabulaire maison, pas des mots-clés TMDB bruts |
 
 Règles :
-- **Mots-clés : usage interne seulement.** Certains peuvent spoiler (retournements, morts). Ils servent au score, jamais à l'affichage.
+- **Mots-clés TMDB bruts : usage interne seulement.** Certains peuvent spoiler (retournements, morts). Ils servent au score ; seules les puces du vocabulaire maison (§5) s'affichent, et les sujets sensibles ne s'affichent jamais.
 - **Une reco = une série, décrite par son niveau série.** Pas de données de saison ≥ 2 ni d'épisodes.
 - **Séries déjà commencées** : on ne les montre pas dans les recos.
 
@@ -148,7 +154,7 @@ Tout est testable avec **sa propre liste**, de façon déterministe :
 ## 9. Limites assumées (sans LLM)
 
 - **Le ton et l'ambiance** (« lent », « cosy », « sombre ») ne sont captés que via les mots-clés TMDB, inégaux d'un titre à l'autre. C'est la principale perte par rapport à un LLM.
-- **Les nouveautés** (P1, P2) ont peu de mots-clés et peu de recommandations TMDB : la communauté ne les a pas encore renseignés. Pour elles, le score s'appuie davantage sur genres + personnes + langue, et moins sur mots-clés + co-reco. Le plan les repondère automatiquement.
+- **Les nouveautés** : on craignait peu de mots-clés et de recommandations TMDB. Mesure du 2026-10-10 (4 premiers titres de chaque liste) : 4 à 33 mots-clés par titre (moyenne 10 à 20 selon la liste) et 20 recommandations partout, y compris pour les sorties du dernier mois. Pas de trou net, mais seuls les titres populaires ont été mesurés : sous 5 mots-clés, on repondère vers genres + personnes.
 - **Biais de popularité** : TMDB favorise ce qui est déjà populaire. On peut ajouter un petit bouton « surprends-moi » (pénalise la popularité).
 - **Explication courte** : « proche de X » plutôt qu'une phrase rédigée.
 
@@ -179,7 +185,7 @@ Fichiers prévus : `ingest.py`, `score.py`, `build_page.py`, `profile.json`, `.e
 | **5. Rafraîchissement** | Lancement hebdo automatique (launchd/cron), cache | La page se met à jour seule |
 | **6. Facultatif** | Badge plateforme · mode « duo » (ses goûts + les tiens) · autres médias | À la demande |
 
-**Avancement (2026-10-10) :** phases 0 et 1 faites. `python3 refresh.py` produit `output/index.html` (8 listes de 20 titres, synopsis repliés). Prochaine étape : phase 2 (profil de goûts).
+**Avancement (2026-10-10) :** phases 0 à 3 faites et testées de bout en bout ; le profil de Celia est saisi et le tri validé à l'œil. Page autonome avec « déjà vu » dynamique (§13). Reste : publication, mise à jour hebdomadaire automatique, diversité, évaluation du §8.
 
 ## 12. Points à confirmer
 
@@ -198,3 +204,38 @@ Fichiers prévus : `ingest.py`, `score.py`, `build_page.py`, `profile.json`, `.e
 - [TMDB — watch providers](https://developer.themoviedb.org/reference/movie-watch-providers)
 - [Cold start : nombre minimal de notes (arXiv 2106.00102)](https://ar5iv.labs.arxiv.org/html/2106.00102)
 - [Cold start : « kinda cold » 10-20 notes (UMN)](https://www-users.cse.umn.edu/~kluve018/static/EvaluatingRecommenderBehavior.pdf)
+
+## 13. Page autonome, « déjà vu » et publication
+
+### Une page qui se recalcule seule
+
+`docs/index.html` contient les données (≈ 900 titres, leurs mots-clés, équipes et recommandations),
+le moteur de classement (`web/engine.js`, jumeau de `personal.py`) et l'interface. Aucun serveur.
+Chaque « déjà vu » est recalculé dans le navigateur ; le titre sort, la liste se remplit à 20.
+
+- **Vérifié :** `check_parity.py` compare Python et JavaScript sur 24 listes (dont un profil de
+  test avec titres masqués, « bof », « pas aimé » et duels) : mêmes titres, mêmes scores.
+- **Vu avec un avis** (adoré +2, aimé +1, pas aimé −1) : ça enrichit le profil et le titre n'est plus
+  recommandé. **Bof** : seulement écarté. **Pas intéressé** : masqué, sans effet sur les goûts.
+
+### Où vivent les choix
+
+| Quoi | Où | Durée de vie |
+|---|---|---|
+| Quiz + préférés saisis | `profiles/<nom>.json` | Dans le dépôt si on le versionne |
+| « Déjà vu » / masqués cliqués sur la page | `localStorage` du navigateur | Cet appareil, tant que les données du navigateur ne sont pas effacées |
+| Sauvegarde | fichier JSON téléchargé, puis `merge_state.py` | Durable, et repris par tous les appareils après republication |
+
+**Limite assumée :** sans serveur, deux appareils d'une même personne ne se synchronisent pas
+seuls. La sauvegarde / `merge_state.py` est le pont. Un petit service (type Cloudflare Worker ou
+Supabase) règlerait ça, au prix d'un compte et d'une clé à gérer.
+
+### Publication (GitHub Pages)
+
+La page publiée est **publique** à quiconque a l'adresse, même si le dépôt est privé. Elle contient
+les choix de goûts du profil (familles, goûts précis, titres préférés). `noindex` est posé pour
+les moteurs de recherche, ce qui ne remplace pas la confidentialité.
+
+- Choix retenu (2026-10-10) : **dépôt public + GitHub Pages** (source : branche `main`, dossier `/docs`). GitHub Pages gratuit exige un dépôt public ; un dépôt privé exigerait une offre payante.
+- Mises à jour : `python3 refresh.py` puis commit et push du dossier `docs/`. Une GitHub Action
+  hebdomadaire peut le faire seule (clé TMDB à ajouter comme secret du dépôt).

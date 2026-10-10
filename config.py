@@ -8,7 +8,9 @@ from pathlib import Path
 
 ROOT = Path(__file__).parent
 DB_PATH = ROOT / "media4u.db"
-OUTPUT_DIR = ROOT / "output"
+OUTPUT_DIR = ROOT / "docs"       # page publiée (GitHub Pages sert /docs)
+PROFILES_DIR = ROOT / "profiles"   # un fichier JSON par personne (versionné)
+QUIZ_PORT = 8765
 
 LANGUAGE = "fr-FR"
 LIST_SIZE = 20          # titres affichés par liste
